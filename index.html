@@ -1410,15 +1410,44 @@ var ICON_SMS = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width=
    시트 서버 호출 (Apps Script, JSONP) — 방명록·참석여부 공용
    ========================================================= */
 function sheetApi(params){
+  // 1차: fetch POST (글 길이 제한 없음, 광고 차단기에 덜 걸림) → 실패하면 2차: <script> 태그(JSONP)
+  var copy = {}; Object.keys(params).forEach(function(k){ copy[k] = params[k]; });
+  if(window.fetch && window.AbortController){
+    return fetchPost(copy).catch(function(){ return jsonp(params); });
+  }
+  return jsonp(params);
+}
+function apiMsg(data){
+  return new Error((data && data.error) || (LANG === "en" ? "Request failed." : "처리하지 못했습니다."));
+}
+function fetchPost(params){
+  var ac = new AbortController();
+  var timer = setTimeout(function(){ ac.abort(); }, 20000);
+  // Content-Type을 text/plain으로 보내야 브라우저가 사전 확인(preflight) 요청을 안 하고, 구글 스크립트가 받을 수 있다
+  return fetch(CONFIG.SHEET_URL, { method:"POST", body:JSON.stringify(params), headers:{ "Content-Type":"text/plain;charset=utf-8" }, redirect:"follow", signal:ac.signal })
+    .then(function(r){ return r.text(); })
+    .then(function(t){
+      clearTimeout(timer);
+      var data; try{ data = JSON.parse(t); }catch(e){ throw new Error("bad-json"); }   // JSON이 아니면 JSONP로 넘어간다
+      if(data && data.ok) return data;
+      return Promise.reject({ handled:true, data:data });                                // 서버가 거절한 건 그대로 전달
+    })
+    .catch(function(e){
+      clearTimeout(timer);
+      if(e && e.handled) throw apiMsg(e.data);
+      throw e;   // 네트워크/차단/시간초과 → 호출한 쪽에서 JSONP로 재시도
+    });
+}
+function jsonp(params){
   return new Promise(function(resolve, reject){
     var cb = "cb_" + Math.random().toString(36).slice(2);
     params.callback = cb;
     var q = Object.keys(params).map(function(k){ return encodeURIComponent(k)+"="+encodeURIComponent(params[k]); }).join("&");
     var s = document.createElement("script");
-    var timer = setTimeout(function(){ done(); reject(new Error(LANG === "en" ? "The server is slow. Please try again." : "응답이 늦습니다. 잠시 후 다시 시도해 주세요.")); }, 15000);
+    var timer = setTimeout(function(){ done(); reject(new Error(LANG === "en" ? "The server is slow. Please try again." : "응답이 늦습니다. 잠시 후 다시 시도해 주세요.")); }, 20000);
     function done(){ clearTimeout(timer); s.remove(); try{ delete window[cb]; }catch(e){ window[cb] = undefined; } }
-    window[cb] = function(data){ done(); data && data.ok ? resolve(data) : reject(new Error((data && data.error) || "처리하지 못했습니다.")); };
-    s.onerror = function(){ done(); reject(new Error(LANG === "en" ? "Network error." : "네트워크 오류가 발생했습니다.")); };
+    window[cb] = function(data){ done(); data && data.ok ? resolve(data) : reject(apiMsg(data)); };
+    s.onerror = function(){ done(); reject(new Error(LANG === "en" ? "Network error. Please open this page in Chrome or Safari and try again." : "네트워크 오류가 발생했습니다. 크롬이나 사파리에서 열어 다시 시도해 주세요.")); };
     s.src = CONFIG.SHEET_URL + "?" + q;
     document.head.appendChild(s);
   });
@@ -1525,7 +1554,7 @@ function sheetApi(params){
     werr.textContent = ""; submit.disabled = true;
     sheetApi({ action:"add", name:name, password:pw, message:msg })
       .then(function(){ closeModal(wm); return refresh(); })
-      .catch(function(e){ werr.textContent = e.message; })
+      .catch(function(e){ werr.textContent = e.message; refresh(); })
       .then(function(){ submit.disabled = false; });
   });
 
