@@ -361,6 +361,36 @@ html.after .before-only{ display:none !important; }
 @media (prefers-reduced-motion: reduce){ .cover-btn{ animation:none; } }
 html.has-cover{ overflow:hidden; }
 
+/* ===== 모션 효과 (html.fx-* 클래스로 켜짐, 움직임 줄이기 설정이면 전부 꺼짐) ===== */
+html.fx-kenburns .s1{ overflow:hidden; }
+html.fx-kenburns .s1 img{ animation:fxKb 14s ease-out forwards; transform-origin:50% 35%; }
+@keyframes fxKb{ from{ transform:scale(1); } to{ transform:scale(1.08); } }
+html.fx-pulse .s3 td.day span{ animation:fxBeat 2s ease-in-out infinite; }
+@keyframes fxBeat{ 0%,100%{ transform:scale(1); box-shadow:0 0 0 0 rgba(90,84,86,.35); } 50%{ transform:scale(1.08); box-shadow:0 0 0 8px rgba(90,84,86,0); } }
+html.fx-lines .s2-body .ln{ display:inline-block; opacity:0; transform:translateY(8px); transition:opacity .6s ease, transform .6s ease; }
+html.fx-lines .s2.is-in .s2-body .ln{ opacity:1; transform:none; }
+html.fx-roll .s3-num{ overflow:hidden; }
+html.fx-roll .s3-num .roll{ display:inline-block; animation:fxRoll .35s ease-out; }
+@keyframes fxRoll{ from{ transform:translateY(.6em); opacity:0; } to{ transform:none; opacity:1; } }
+html.fx-draw .s2-divider, html.fx-draw .s3-rule{ transform:scaleX(0); transition:transform 1.1s cubic-bezier(.2,.7,.2,1); }
+html.fx-draw .sec.is-in .s2-divider, html.fx-draw .sec.is-in .s3-rule{ transform:scaleX(1); }
+.s2-art{ display:none; width:96px; height:64px; margin:-6px auto 18px; }
+html.fx-art .s2-art{ display:block; }
+.s2-art .ring{ fill:none; stroke:#b9a9a0; stroke-width:1.6; stroke-dasharray:140; stroke-dashoffset:140; }
+.s2-art .heart{ fill:#d9a7a7; transform-origin:48px 30px; transform:scale(0); }
+.s2.is-in .s2-art .ring{ animation:fxDraw 1.6s ease-out forwards; }
+.s2.is-in .s2-art .ring.b{ animation-delay:.5s; }
+.s2.is-in .s2-art .heart{ animation:fxPop .6s 1.9s cubic-bezier(.3,1.5,.5,1) forwards, fxHb 1.6s 2.6s ease-in-out infinite; }
+@keyframes fxDraw{ to{ stroke-dashoffset:0; } }
+@keyframes fxPop{ to{ transform:scale(1); } }
+@keyframes fxHb{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.12); } }
+@media (prefers-reduced-motion: reduce){
+  html.fx-kenburns .s1 img, html.fx-pulse .s3 td.day span, html.fx-roll .s3-num .roll, .s2.is-in .s2-art .ring, .s2.is-in .s2-art .heart{ animation:none; }
+  html.fx-lines .s2-body .ln{ opacity:1; transform:none; transition:none; }
+  html.fx-draw .s2-divider, html.fx-draw .s3-rule{ transform:none; transition:none; }
+  .s2-art .ring{ stroke-dashoffset:0; } .s2-art .heart{ transform:scale(1); }
+}
+
 /* ===== s0 배경음악 버튼 ===== */
 .s0{
   position:fixed; right:16px; bottom:calc(16px + env(safe-area-inset-bottom)); z-index:900;
@@ -418,6 +448,9 @@ html.has-cover{ overflow:hidden; }
   <p class="kicker after-only">THANK YOU</p>
   <h2 class="title before-only" data-i18n="s2_title">소중한 분들을 초대합니다</h2>
   <h2 class="title after-only" data-i18n="s2_title_after">감사합니다</h2>
+  <div class="s2-art" aria-hidden="true">
+    <svg viewBox="0 0 96 64"><circle class="ring a" cx="38" cy="30" r="22"/><circle class="ring b" cx="58" cy="30" r="22"/><path class="heart" d="M48 38 c-4-5-10-6-10-11 a5 5 0 0 1 10-1 a5 5 0 0 1 10 1 c0 5-6 6-10 11z"/></svg>
+  </div>
 
   <div class="before-only">
   <p class="s2-body" data-i18n="s2_p1">
@@ -783,7 +816,15 @@ var CONFIG = {
 
   BGM_ON: true,                              // 배경음악 버튼 표시 여부 (assets/bgm.mp3 필요)
   BGM_START_ON_FIRST_TAP: true,              // true면 화면을 처음 누를 때 음악이 켜진다
-  SNOW: true,                                // 첫 화면 사진 위에 눈 내리는 효과
+  SNOW: true,                                // 22 첫 화면 사진 위에 눈 내리는 효과
+  FX: {                                      // 모션 효과 스위치 (true/false)
+    kenburns: false,                         // 21 첫 화면 사진 천천히 확대
+    pulse: true,                             // 23 달력 21일 심장박동
+    lines: true,                             // 24 인사말 한 줄씩 떠오르기
+    roll: true,                              // 25 D-day 숫자 넘김
+    draw: true,                              // 26 구분선 그리기
+    art: true                                // 27 제목 아래 반지·하트 일러스트
+  },
   INTRO_COVER: false,                        // true면 "청첩장 열기" 표지를 먼저 보여준다 (누르는 순간 음악 시작)
 
   /* tel을 비워두면 그 줄은 표시하지 않는다 → 부모님 동의 여부에 따라 비우면 된다 */
@@ -1037,6 +1078,38 @@ var ICON_SMS = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width=
   var ua = navigator.userAgent, dev = /iPhone|iPad|iPod/i.test(ua) ? "ios" : /Android/i.test(ua) ? "android" : "pc";
   var img = new Image();   // 응답을 기다릴 필요가 없으므로 가장 가벼운 방식으로 보낸다
   img.src = CONFIG.SHEET_URL + "?action=hit&dev=" + dev + "&lang=" + LANG + "&t=" + Date.now();
+})();
+
+/* =========================================================
+   모션 효과 켜기 (CONFIG.FX)
+   ========================================================= */
+(function(){
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  Object.keys(CONFIG.FX || {}).forEach(function(k){ if(CONFIG.FX[k]) document.documentElement.classList.add("fx-" + k); });
+
+  // 24 인사말: <br>로 나뉜 줄을 하나씩 감싼다. 언어를 바꾸면 문장이 새로 들어오므로 그때마다 다시 감싼다
+  if(CONFIG.FX.lines && !reduce){
+    function wrapLines(){
+      var i = 0;
+      $$(".s2 .s2-body").forEach(function(p){
+        if(p.querySelector(".ln")) return;
+        p.innerHTML = p.innerHTML.split(/<br\s*\/?>/).map(function(t){ return '<span class="ln" style="transition-delay:' + (i++ * 0.15) + 's">' + t.trim() + '</span>'; }).join("<br>");
+      });
+    }
+    wrapLines(); onLang(wrapLines);
+  }
+
+  // 25 D-day 숫자: 값이 바뀔 때 아래에서 올라오며 바뀐다
+  if(CONFIG.FX.roll && !reduce){
+    $$(".s3-num").forEach(function(el){
+      var last = el.textContent;
+      new MutationObserver(function(){
+        if(el.textContent === last || el.querySelector(".roll")) return;
+        last = el.textContent; el.innerHTML = '<span class="roll">' + last + '</span>';
+        setTimeout(function(){ if(el.querySelector(".roll")) el.textContent = last; }, 380);
+      }).observe(el, { childList:true, characterData:true, subtree:true });
+    });
+  }
 })();
 
 /* =========================================================
