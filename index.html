@@ -10,8 +10,8 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="김경민 ♥ 김혜진 결혼합니다">
 <meta property="og:description" content="2026년 11월 21일 토요일 오후 5시 30분 · 티웨딩 천안 투데이홀">
-<meta property="og:image" content="https://SITE_URL/assets/og.jpg">
-<meta property="og:url" content="https://SITE_URL/">
+<meta property="og:image" content="https://consilluke.github.io/wedding/assets/og.jpg">
+<meta property="og:url" content="https://consilluke.github.io/wedding/">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -224,6 +224,14 @@ img,video{ max-width:100%; }
 .s5-lb-prev{ left:8px; } .s5-lb-next{ right:8px; }
 .s5-lb-count{ position:absolute; bottom:22px; left:0; right:0; text-align:center; color:rgba(255,255,255,0.8); font-size:14px; font-variant-numeric:tabular-nums; }
 
+/* ===== 결혼식 후 모드 ===== */
+.after-only{ display:none; }
+html.after .after-only{ display:block; }
+html.after .before-only{ display:none !important; }
+.ph-desc{ margin:-10px 0 22px; font-size:16px; line-height:1.85; color:#666; word-break:keep-all; }
+.ph-btn{ display:inline-flex; align-items:center; gap:8px; padding:14px 26px; border-radius:999px; background:var(--accent); color:#fff; text-decoration:none; font-family:var(--sans); font-size:15px; font-weight:600; }
+.ph-btn svg{ width:18px; height:18px; }
+
 /* ===== r 참석 여부 ===== */
 .r-desc{ margin:-10px 0 22px; font-size:16px; line-height:1.85; color:#777; word-break:keep-all; }
 .r-form{ text-align:left; border:1px solid var(--line); border-radius:16px; padding:20px 18px 18px; }
@@ -264,7 +272,9 @@ img,video{ max-width:100%; }
 .s7-del{ position:absolute; top:10px; right:10px; width:28px; height:28px; border:0; border-radius:999px; background:transparent; color:#999; font-size:16px; line-height:28px; cursor:pointer; }
 .s7-del:hover{ background:#f6f6f6; }
 .s7-empty{ border:1px dashed #e5e5e5; border-radius:14px; padding:16px; font-size:14px; color:#888; text-align:center; }
-.s7-foot{ display:flex; justify-content:flex-end; margin-top:18px; }
+.s7-foot{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:18px; }
+.s7-more{ padding:12px 18px; border-radius:999px; border:1px solid #e3e3e3; background:#fff; font-family:var(--sans); font-size:14px; color:#555; cursor:pointer; }
+.s7-more[hidden]{ display:none; }
 .s7-write{ padding:12px 18px; border-radius:999px; border:1px solid #e3e3e3; background:#fff; font-family:var(--sans); font-size:16px; font-weight:600; color:#111; cursor:pointer; }
 .s7-write:active{ transform:translateY(1px); }
 /* 모달 */
@@ -314,6 +324,30 @@ img,video{ max-width:100%; }
 .s9-kakao svg{ width:10px; height:10px; }
 .s9-foot{ margin:30px 0 0; font-size:12px; color:#bbb; }
 
+/* ===== 표지 (청첩장 열기) ===== */
+.cover{
+  position:fixed; inset:0; z-index:1500; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  background:#fff; text-align:center; padding:40px 28px; transition:opacity .7s ease;
+}
+.cover.is-out{ opacity:0; pointer-events:none; }
+.cover-bg{ position:absolute; inset:0; background:url("assets/intro.jpg") center 30%/cover no-repeat; opacity:.28; filter:blur(2px); }
+.cover-bg::after{ content:""; position:absolute; inset:0; background:linear-gradient(to bottom, rgba(255,255,255,.2), rgba(255,255,255,.85)); }
+.cover-in{ position:relative; max-width:320px; }
+.cover-kicker{ margin:0 0 14px; font-family:var(--serif); font-size:13px; letter-spacing:.4em; padding-left:.4em; color:#8a8a8a; }
+.cover-names{ margin:0; font-family:var(--serif); font-size:34px; letter-spacing:.06em; color:#2f2f2f; line-height:1.3; }
+.cover-names span{ display:block; font-size:16px; color:#9a9a9a; margin:4px 0; letter-spacing:.1em; }
+.cover-date{ margin:18px 0 0; font-size:14px; letter-spacing:.14em; padding-left:.14em; color:#666; }
+.cover-place{ margin:6px 0 0; font-size:14px; color:#888; }
+.cover-btn{
+  margin-top:38px; padding:14px 34px; border-radius:999px; border:1px solid var(--accent); background:var(--accent); color:#fff;
+  font-family:var(--sans); font-size:15px; font-weight:600; letter-spacing:.04em; cursor:pointer;
+  box-shadow:0 8px 22px rgba(90,84,86,.25); animation:coverPulse 2.2s ease-in-out infinite;
+}
+.cover-note{ margin:14px 0 0; font-size:12px; color:#aaa; }
+@keyframes coverPulse{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-3px); } }
+@media (prefers-reduced-motion: reduce){ .cover-btn{ animation:none; } }
+html.has-cover{ overflow:hidden; }
+
 /* ===== s0 배경음악 버튼 ===== */
 .s0{
   position:fixed; right:16px; bottom:calc(16px + env(safe-area-inset-bottom)); z-index:900;
@@ -332,6 +366,17 @@ img,video{ max-width:100%; }
 </style>
 </head>
 <body>
+<div class="cover" data-cover hidden>
+  <div class="cover-bg" aria-hidden="true"></div>
+  <div class="cover-in">
+    <p class="cover-kicker">WEDDING INVITATION</p>
+    <p class="cover-names" data-cover-names>경민<span>&amp;</span>혜진</p>
+    <p class="cover-date">2026. 11. 21 SAT · 5:30 PM</p>
+    <p class="cover-place" data-cover-place>티웨딩 천안 투데이홀</p>
+    <button type="button" class="cover-btn" data-cover-open>청첩장 열기</button>
+    <p class="cover-note" data-cover-note>배경음악이 함께 재생됩니다</p>
+  </div>
+</div>
 <main class="page">
 
 <!-- 언어 전환 토글 (KOR / ENG) -->
@@ -356,9 +401,12 @@ img,video{ max-width:100%; }
      S2. 인사말 · 혼주 · 연락하기
      ===================================================== -->
 <section class="sec s2">
-  <p class="kicker">INVITATION</p>
-  <h2 class="title" data-i18n="s2_title">소중한 분들을 초대합니다</h2>
+  <p class="kicker before-only">INVITATION</p>
+  <p class="kicker after-only">THANK YOU</p>
+  <h2 class="title before-only" data-i18n="s2_title">소중한 분들을 초대합니다</h2>
+  <h2 class="title after-only" data-i18n="s2_title_after">감사합니다</h2>
 
+  <div class="before-only">
   <p class="s2-body" data-i18n="s2_p1">
     서로의 삶을<br>
     함께 걸어가기로 한 두 사람이<br>
@@ -370,6 +418,20 @@ img,video{ max-width:100%; }
     저희의 새로운 시작을<br>
     축복해 주시면 감사하겠습니다.
   </p>
+  </div>
+  <div class="after-only">
+  <p class="s2-body" data-i18n="s2_after1">
+    저희 두 사람의 결혼식에<br>
+    함께해 주신 모든 분께<br>
+    진심으로 감사드립니다.
+  </p>
+  <div class="s2-gap"></div>
+  <p class="s2-body" data-i18n="s2_after2">
+    보내 주신 축복과 사랑을<br>
+    오래 간직하며<br>
+    행복하게 살겠습니다.
+  </p>
+  </div>
 
   <div class="s2-divider"></div>
 
@@ -509,7 +571,7 @@ img,video{ max-width:100%; }
 <!-- =====================================================
      R. 참석 여부 (RSVP) — 응답은 하객명단 시트의 '참석응답' 탭에 쌓인다
      ===================================================== -->
-<section class="sec r">
+<section class="sec r before-only">
   <p class="kicker">RSVP</p>
   <h2 class="title" data-i18n="r_title">참석 의사 전달</h2>
   <p class="r-desc" data-i18n="r_desc">식사 준비에 참고하고자 합니다.<br>부담 없이 참석 여부를 알려 주시면 감사하겠습니다.</p>
@@ -572,13 +634,26 @@ img,video{ max-width:100%; }
 </section>
 
 <!-- =====================================================
+     P. 하객 사진 공유 (결혼식 후에만, 앨범 주소가 있을 때만)
+     ===================================================== -->
+<section class="sec ph after-only" data-ph hidden>
+  <p class="kicker">PHOTOS</p>
+  <h2 class="title" data-i18n="ph_title">함께한 순간</h2>
+  <p class="ph-desc" data-i18n="ph_desc">결혼식에서 찍어 주신 사진을<br>공유 앨범에 올려 주시면 소중히 간직하겠습니다.</p>
+  <a class="ph-btn" data-ph-link target="_blank" rel="noopener" href="#">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 15l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.5"/></svg>
+    <span data-i18n="ph_btn">사진 올리기 · 앨범 보기</span>
+  </a>
+</section>
+
+<!-- =====================================================
      S7. 방명록
      ===================================================== -->
 <section class="sec s7">
   <p class="kicker">GUESTBOOK</p>
   <h2 class="title" data-i18n="s7_title">방명록</h2>
   <div class="s7-list" data-s7-list><div class="s7-empty">불러오는 중입니다.</div></div>
-  <div class="s7-foot"><button type="button" class="s7-write" data-s7-open data-i18n="s7_write">작성하기</button></div>
+  <div class="s7-foot"><button type="button" class="s7-more" data-s7-more hidden></button><span></span><button type="button" class="s7-write" data-s7-open data-i18n="s7_write">작성하기</button></div>
 
   <div class="modal" data-s7-write aria-hidden="true">
     <div class="modal-bg" data-close></div>
@@ -665,10 +740,14 @@ img,video{ max-width:100%; }
    설정 — 내용은 여기서만 고친다
    ========================================================= */
 var CONFIG = {
-  SITE_URL: "https://SITE_URL/",            // 청첩장 실제 주소
+  SITE_URL: "https://consilluke.github.io/wedding/",            // 청첩장 실제 주소
   KAKAO_JS_KEY: "",                          // 카카오 디벨로퍼스 JavaScript 키 (지도 + 공유)
   WEDDING: "2026-11-21T17:30:00+09:00",
   WEDDING_HOURS: 2.5,                        // 캘린더 일정 길이(예식+식사) — 17:30~20:00
+  AFTER_MODE: "auto",                        // "auto": 예식 다음날 0시부터 감사 모드 / "on" 강제 / "off" 끔
+  PHOTO_ALBUM_URL: "",                       // 결혼식 후 하객 사진 공유 앨범 주소 (구글 포토 공유 앨범 등). 비우면 버튼 숨김
+  HIT_COUNT: true,                           // 열람 수 집계 (시트 '열람' 탭에 시각·기기·언어만 기록)
+  GUESTBOOK_PREVIEW: 5,                      // 방명록에 처음 보여줄 글 수 (나머지는 "더보기")
   NAMES: "경민, 혜진",
   NAMES_EN: "Gyeongmin & Hyejin",
   /* 영문 표기 — 여권 표기와 다르면 여기만 고친다 */
@@ -691,6 +770,7 @@ var CONFIG = {
 
   BGM_ON: true,                              // 배경음악 버튼 표시 여부 (assets/bgm.mp3 필요)
   BGM_START_ON_FIRST_TAP: true,              // true면 화면을 처음 누를 때 음악이 켜진다
+  INTRO_COVER: false,                        // true면 "청첩장 열기" 표지를 먼저 보여준다 (누르는 순간 음악 시작)
 
   /* tel을 비워두면 그 줄은 표시하지 않는다 → 부모님 동의 여부에 따라 비우면 된다 */
   CONTACTS: {
@@ -739,7 +819,10 @@ function esc(s){
 var LANG = "ko";
 var I18N_EN = {
   s1_names: 'Gyeongmin <span>&amp;</span> Hyejin',
-  s2_title: "You're Invited",
+  s2_title: "You're Invited", s2_title_after: "Thank You",
+  s2_after1: "To everyone who joined us<br>on our wedding day,<br>thank you from the bottom of our hearts.",
+  s2_after2: "We will cherish<br>your blessings and love<br>as we begin our life together.",
+  ph_title: "Moments Together", ph_desc: "If you took photos at the wedding,<br>please add them to our shared album.", ph_btn: "Add photos · View album",
   s2_p1: "Two people who have chosen<br>to walk through life together<br>are making a precious promise.",
   s2_p2: "We would be grateful<br>if you could join us with joy<br>and bless our new beginning.",
   s2_family: '<span class="s2-en-who"><b>Gyeongmin</b><br><span class="s2-rel">Eldest son of Mr. Wooyeol Kim &amp; Mrs. Yeojin Jang</span></span>'
@@ -801,6 +884,7 @@ var TXT = {
     dday:"{names}의 결혼식이 <b>{n}일</b> 남았습니다.", today:"오늘은 <b>{names}</b>의 결혼식입니다.",
     after:"{names}의 결혼을 축하해 주셔서 감사합니다.",
     gb_ready:"방명록 준비 중입니다.", gb_first:"첫 번째 축하 글을 남겨 주세요.", gb_fail:"방명록을 불러오지 못했습니다.",
+    gb_more:"축하 글 {n}개 더보기", gb_less:"접기",
     err_name:"이름을 입력해 주세요.", err_pw:"비밀번호를 4자 이상 입력해 주세요.", err_msg:"내용을 입력해 주세요.", err_pw4:"비밀번호를 입력해 주세요.",
     empty:"준비 중입니다.",
     r_e_side:"신랑측·신부측을 선택해 주세요.", r_e_name:"성함을 입력해 주세요.", r_e_attend:"참석 여부를 선택해 주세요.",
@@ -815,6 +899,7 @@ var TXT = {
     dday:"<b>{n} days</b> until {names}'s wedding.", today:"Today is <b>{names}</b>'s wedding day.",
     after:"Thank you for celebrating with {names}.",
     gb_ready:"The guestbook is coming soon.", gb_first:"Be the first to leave a message.", gb_fail:"Could not load the guestbook.",
+    gb_more:"Show {n} more", gb_less:"Show less",
     err_name:"Please enter your name.", err_pw:"Please enter a password (4+ characters).", err_msg:"Please write a message.", err_pw4:"Please enter the password.",
     empty:"Coming soon.",
     r_e_side:"Please choose groom's or bride's side.", r_e_name:"Please enter your name.", r_e_attend:"Please tell us if you can attend.",
@@ -906,6 +991,39 @@ document.addEventListener("keydown", function(e){
 
 var ICON_TEL = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg>';
 var ICON_SMS = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>';
+
+/* =========================================================
+   결혼식 후 모드 — 예식 다음날 0시(한국 시간)부터 자동. 미리 보려면 주소 뒤에 ?after=1
+   ========================================================= */
+(function(){
+  var mode = CONFIG.AFTER_MODE;
+  var forced = /[?&]after=(1|0)\b/.exec(location.search);
+  var after;
+  if(forced) after = forced[1] === "1";
+  else if(mode === "on") after = true;
+  else if(mode === "off") after = false;
+  else{
+    var KST = 9 * 3600 * 1000;
+    var wd = new Date(new Date(CONFIG.WEDDING).getTime() + KST);
+    var nextMidnightKst = Date.UTC(wd.getUTCFullYear(), wd.getUTCMonth(), wd.getUTCDate() + 1) - KST;
+    after = Date.now() >= nextMidnightKst;
+  }
+  if(!after) return;
+  document.documentElement.classList.add("after");
+  var ph = $("[data-ph]");
+  if(CONFIG.PHOTO_ALBUM_URL){ $("[data-ph-link]").href = CONFIG.PHOTO_ALBUM_URL; ph.hidden = false; }
+})();
+
+/* =========================================================
+   열람 집계 — 한 번 열 때 1건, 같은 탭에서 새로고침은 세지 않는다
+   ========================================================= */
+(function(){
+  if(!CONFIG.HIT_COUNT || !CONFIG.SHEET_URL) return;
+  try{ if(sessionStorage.getItem("wedding_hit")) return; sessionStorage.setItem("wedding_hit", "1"); }catch(e){}
+  var ua = navigator.userAgent, dev = /iPhone|iPad|iPod/i.test(ua) ? "ios" : /Android/i.test(ua) ? "android" : "pc";
+  var img = new Image();   // 응답을 기다릴 필요가 없으므로 가장 가벼운 방식으로 보낸다
+  img.src = CONFIG.SHEET_URL + "?action=hit&dev=" + dev + "&lang=" + LANG + "&t=" + Date.now();
+})();
 
 /* =========================================================
    스크롤 등장 효과
@@ -1241,12 +1359,19 @@ function sheetApi(params){
     ready(); onLang(ready); openBtn.hidden = true; return;
   }
 
-  var pendingId = null, lastItems = null, failed = false;
+  var pendingId = null, lastItems = null, failed = false, expanded = false;
+  var moreBtn = $("[data-s7-more]");
   onLang(function(){ if(failed) list.innerHTML = '<div class="s7-empty">'+T("gb_fail")+'</div>'; else if(lastItems) render(lastItems); });
+  moreBtn.addEventListener("click", function(){ expanded = !expanded; if(lastItems) render(lastItems); });
   function render(items){
     lastItems = items; failed = false;
-    if(!items.length){ list.innerHTML = '<div class="s7-empty">'+T("gb_first")+'</div>'; return; }
-    list.innerHTML = items.map(function(it){
+    if(!items.length){ list.innerHTML = '<div class="s7-empty">'+T("gb_first")+'</div>'; moreBtn.hidden = true; return; }
+    var N = CONFIG.GUESTBOOK_PREVIEW, shown = expanded ? items : items.slice(0, N);
+    if(items.length > N){
+      moreBtn.hidden = false;
+      moreBtn.textContent = expanded ? T("gb_less") : T("gb_more").replace("{n}", items.length - N);
+    }else moreBtn.hidden = true;
+    list.innerHTML = shown.map(function(it){
       return '<div class="s7-card" data-id="'+esc(it.id)+'">'
         + '<button type="button" class="s7-del" aria-label="삭제">×</button>'
         + '<p class="s7-name">'+esc(it.name)+'<small>'+esc(it.date)+'</small></p>'
@@ -1363,6 +1488,29 @@ function sheetApi(params){
     e.stopPropagation();
     audio.paused ? play() : pause();
   });
+
+  // ---- 표지: 누르는 순간 음악을 켜고 표지를 걷는다 (브라우저가 '사용자 동작' 뒤에만 소리를 허용하므로) ----
+  var cover = $("[data-cover]");
+  if(CONFIG.INTRO_COVER && cover){
+    var q = /[?&]lang=(en)\b/.exec(location.search);
+    var en = q ? true : (function(){ try{ return localStorage.getItem("wedding_lang") === "en"; }catch(e){ return false; } })();
+    if(en){
+      $("[data-cover-names]").innerHTML = "Gyeongmin<span>&amp;</span>Hyejin";
+      $("[data-cover-place]").textContent = "T Wedding Cheonan, Today Hall";
+      $("[data-cover-open]").textContent = "Open invitation";
+      $("[data-cover-note]").textContent = "Music will play";
+    }
+    cover.hidden = false; document.documentElement.classList.add("has-cover");
+    var opened = false;
+    function openCover(){
+      if(opened) return; opened = true;
+      play();                                  // 이 호출은 터치 안에서 일어나므로 폰에서도 소리가 허용된다
+      cover.classList.add("is-out"); document.documentElement.classList.remove("has-cover");
+      setTimeout(function(){ cover.remove(); }, 800);
+    }
+    cover.addEventListener("click", openCover);
+    cover.addEventListener("touchend", function(e){ e.preventDefault(); openCover(); }, { passive:false });
+  }
 
   if(CONFIG.BGM_START_ON_FIRST_TAP){
     // 1) 페이지를 열자마자 한 번 시도 — PC나 자동재생이 허용된 환경에서는 바로 나온다
