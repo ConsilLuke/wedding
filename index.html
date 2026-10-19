@@ -103,6 +103,7 @@ img,video{ max-width:100%; }
 
 /* ===== s1 인트로 ===== */
 .s1{ position:relative; }
+.s1-snow{ position:absolute; inset:0; pointer-events:none; z-index:2; }
 .s1 video, .s1 img{ display:block; width:100%; height:auto; aspect-ratio:2/3; object-fit:cover; background:#f3f3f3; }
 .s1-cap{
   position:absolute; left:0; right:0; bottom:0; padding:70px 22px 26px; text-align:center; pointer-events:none;
@@ -782,6 +783,7 @@ var CONFIG = {
 
   BGM_ON: true,                              // 배경음악 버튼 표시 여부 (assets/bgm.mp3 필요)
   BGM_START_ON_FIRST_TAP: true,              // true면 화면을 처음 누를 때 음악이 켜진다
+  SNOW: true,                                // 첫 화면 사진 위에 눈 내리는 효과
   INTRO_COVER: false,                        // true면 "청첩장 열기" 표지를 먼저 보여준다 (누르는 순간 음악 시작)
 
   /* tel을 비워두면 그 줄은 표시하지 않는다 → 부모님 동의 여부에 따라 비우면 된다 */
@@ -1035,6 +1037,43 @@ var ICON_SMS = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width=
   var ua = navigator.userAgent, dev = /iPhone|iPad|iPod/i.test(ua) ? "ios" : /Android/i.test(ua) ? "android" : "pc";
   var img = new Image();   // 응답을 기다릴 필요가 없으므로 가장 가벼운 방식으로 보낸다
   img.src = CONFIG.SHEET_URL + "?action=hit&dev=" + dev + "&lang=" + LANG + "&t=" + Date.now();
+})();
+
+/* =========================================================
+   눈 효과 — 첫 화면 사진 안에서만. 화면 밖·다른 앱·움직임 줄이기 설정이면 멈춘다
+   ========================================================= */
+(function(){
+  if(!CONFIG.SNOW) return;
+  if(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var s1 = $(".s1"); if(!s1) return;
+  var c = document.createElement("canvas"); c.className = "s1-snow"; c.setAttribute("aria-hidden","true"); s1.appendChild(c);
+  var ctx = c.getContext("2d"), W = 0, H = 0, flakes = [], running = false, raf = 0;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  function size(){
+    W = s1.clientWidth; H = s1.clientHeight;
+    c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); c.style.width = W + "px"; c.style.height = H + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  size(); window.addEventListener("resize", size);
+  for(var i = 0; i < 18; i++) flakes.push({ x: Math.random() * 400, y: Math.random() * 700, r: 1.2 + Math.random() * 2.2, v: 0.35 + Math.random() * 0.6, d: Math.random() * 6.28, a: 0.5 + Math.random() * 0.5 });
+  function frame(){
+    if(!running) return;
+    ctx.clearRect(0, 0, W, H);
+    for(var i = 0; i < flakes.length; i++){
+      var f = flakes[i];
+      f.y += f.v; f.d += 0.01; f.x += Math.sin(f.d) * 0.3;
+      if(f.y > H + 4){ f.y = -4; f.x = Math.random() * W; }
+      if(f.x < -4) f.x = W + 4; if(f.x > W + 4) f.x = -4;
+      ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 6.28);
+      ctx.fillStyle = "rgba(255,255,255," + f.a + ")"; ctx.shadowColor = "rgba(255,255,255,0.8)"; ctx.shadowBlur = 4; ctx.fill();
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  var visible = true;
+  function update(){ var should = visible && !document.hidden; if(should && !running){ running = true; frame(); } else if(!should){ running = false; cancelAnimationFrame(raf); } }
+  if("IntersectionObserver" in window){ new IntersectionObserver(function(es){ visible = es[0].isIntersecting; update(); }, { threshold: 0.05 }).observe(s1); }
+  document.addEventListener("visibilitychange", update);
+  update();
 })();
 
 /* =========================================================
